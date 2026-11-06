@@ -222,6 +222,10 @@ def test_estoque_avisa_e_movimenta(logado):
     html = _html(logado.get(reverse("estoque")))
     assert "Granola" in html
     assert "Acabando" in html
+    assert 'class="tarja tarja-acabando"' in html
+    assert "O aviso vermelho" in html
+    assert "menor ou igual ao mínimo" in html
+    assert "Quantidade boa" in html
     assert "1 insumo está acabando." in html
     assert "Entrada" in html
     assert "Saída" in html

@@ -208,6 +208,7 @@ h3 {
 .cartao.baixo {
   background: #FDECEC;
   border-color: #6E1220;
+  border-width: 3px;
 }
 
 .cartao h2 {
@@ -255,8 +256,33 @@ h3 {
   border-radius: 999px;
 }
 
+.tarja-acabando {
+  font-size: 1.35rem;
+  font-weight: 800;
+  padding: 0.45rem 1rem;
+  letter-spacing: 0.02em;
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 0 0 2px #6E1220;
+}
+
 .tarja.boa {
   background: #14532D;
+}
+
+.legenda-acabando {
+  margin: 0 0 1.25rem;
+  max-width: 42rem;
+  padding: 0.85rem 1rem;
+  background: #FFFFFF;
+  color: #1C1226;
+  border: 2px solid #6E1220;
+  border-left-width: 6px;
+  border-radius: 0.75rem;
+  font-size: 1.125rem;
+}
+
+.legenda-acabando strong {
+  color: #6E1220;
 }
 
 label,

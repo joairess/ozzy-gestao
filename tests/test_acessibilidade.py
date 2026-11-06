@@ -27,6 +27,7 @@ def test_cores_da_interface_passam_no_contraste_aa():
         ("#6E1220", "#FDECEC", 4.5),
         ("#14532D", "#E7F6EC", 4.5),
         ("#FFFFFF", "#6E1220", 4.5),
+        ("#6E1220", "#FFFFFF", 4.5),
         ("#FFFFFF", "#14532D", 4.5),
         ("#5C4A3E", "#FFFFFF", 3),
         ("#1C1226", "#FFFFFF", 4.5),

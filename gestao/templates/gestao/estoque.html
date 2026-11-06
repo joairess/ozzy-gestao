@@ -15,6 +15,10 @@
   <p class="aviso alerta" role="status">{{ alertas }} insumos estão acabando.</p>
   {% endif %}
 
+  <p class="legenda-acabando">
+    O aviso vermelho <strong>Acabando</strong> significa que a quantidade atual é menor ou igual ao mínimo.
+  </p>
+
   <div class="row g-3">
     {% for insumo in insumos %}
     <div class="col-12 col-lg-6">
@@ -22,7 +26,7 @@
         <div class="pedido-topo">
           <h2>{{ insumo.nome }}</h2>
           {% if insumo.abaixo_do_minimo %}
-          <p class="tarja">Acabando</p>
+          <p class="tarja tarja-acabando">Acabando</p>
           {% else %}
           <p class="tarja boa">Quantidade boa</p>
           {% endif %}

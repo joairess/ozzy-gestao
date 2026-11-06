@@ -28,6 +28,12 @@ def _html(resposta):
     return resposta.content.decode()
 
 
+def test_saude_responde_sem_login(client):
+    resposta = client.get(reverse("saude"))
+    assert resposta.status_code == 200
+    assert resposta.content == b"ok"
+
+
 def test_paginas_do_app_exigem_login(client):
     for nome in ("novo_pedido", "fechamento", "estoque"):
         resposta = client.get(reverse(nome))

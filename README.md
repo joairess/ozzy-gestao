@@ -31,10 +31,13 @@ O cadastro de produtos e insumos também pode ser feito no admin: <http://127.0.
 | Linguagem | Python 3.12 |
 | Back-end e templates | Django (MVT) |
 | Interface | HTML, CSS e Bootstrap 5 |
-| Banco em desenvolvimento | SQLite (`db.sqlite3`) |
-| Banco quando existe `DATABASE_URL` | PostgreSQL |
+| Banco em desenvolvimento e no Render gratuito | SQLite (`db.sqlite3`) |
+| Banco quando existe `DATABASE_URL` | PostgreSQL (lido com dj-database-url) |
+| Servidor de produção | gunicorn (`config.wsgi:application`) |
+| Arquivos estáticos em produção | WhiteNoise, depois de `collectstatic` |
 | Testes | pytest e pytest-django |
 | Integração contínua | GitHub Actions |
+| Hospedagem prevista | Render, web service no plano gratuito |
 
 O Django traz login com senha em hash (PBKDF2), proteção CSRF, escape de HTML nos templates e ORM (consultas parametrizadas).
 
@@ -68,7 +71,7 @@ DATABASE_URL=postgres://usuario:senha@localhost:5432/ozzy_gestao python manage.p
 
 O esquema aceito é `postgres://` ou `postgresql://`. O parâmetro `sslmode` (por exemplo `?sslmode=require`) é repassado ao driver.
 
-`DJANGO_DEBUG=1` é o padrão local, para o `runserver` entregar o CSS. Em produção, use `DJANGO_DEBUG=0`.
+`DJANGO_DEBUG=1` é o padrão local, para o `runserver` entregar o CSS. Em produção, use `DJANGO_DEBUG=0`. No Render, se a variável não existir, o debug também fica desligado, porque a plataforma define `RENDER=true`.
 
 ## Testes
 
@@ -89,6 +92,62 @@ A suíte cobre:
 O workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml) roda `pytest` com Python 3.12 em todo **push** e em todo **pull request**.
 
 [![Testes](https://github.com/joairess/ozzy-gestao/actions/workflows/ci.yml/badge.svg)](https://github.com/joairess/ozzy-gestao/actions/workflows/ci.yml)
+
+## Publicação no Render (plano gratuito)
+
+A Experiência Prática IV precisa de uma URL pública. O arquivo [`render.yaml`](render.yaml) descreve um único web service no plano **free**, sem banco pago. O Python fica na 3.12 pelo arquivo [`.python-version`](.python-version), porque o padrão atual da plataforma pode ser mais novo.
+
+Depois que este Blueprint estiver na branch `main`, crie o serviço em:
+
+<https://dashboard.render.com/blueprint/new?repo=https://github.com/joairess/ozzy-gestao>
+
+O serviço acompanha a `main` (`autoDeployTrigger: commit`).
+
+| Etapa | Comando |
+| --- | --- |
+| Build | `pip install -r requirements.txt && python manage.py collectstatic --noinput` |
+| Start | `bash scripts/start.sh` |
+
+O [`Procfile`](Procfile) repete o start. O script aplica as migrações, roda `seed_demo` e sobe o gunicorn escutando em `0.0.0.0:$PORT` (um worker):
+
+```bash
+gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 1
+```
+
+O módulo WSGI é `config.wsgi:application`. A checagem de saúde é `GET /saude/`, que responde `200` com o texto `ok` e não pede login.
+
+O WhiteNoise entrega o CSS. O `collectstatic` do build grava os arquivos em `staticfiles/`, com nome e compressão de produção, porque `DJANGO_DEBUG=0`.
+
+### Variáveis de ambiente
+
+O Blueprint já declara estas variáveis. `DJANGO_SECRET_KEY` é gerada pela plataforma (`generateValue`); não coloque a chave no Git.
+
+| Variável | Valor no Blueprint | Para que serve |
+| --- | --- | --- |
+| `DJANGO_SECRET_KEY` | gerada no Render | Sessão e CSRF. Também aceita o nome `SECRET_KEY`. |
+| `DJANGO_DEBUG` | `0` | Desliga o debug e marca os cookies como seguros. |
+| `DJANGO_ALLOWED_HOSTS` | `.onrender.com` | Libera o subdomínio do serviço. O código também acrescenta `RENDER_EXTERNAL_HOSTNAME`. |
+| `DEMO_PASSWORD` | `acai-demo-2026` | Senha só na primeira criação do usuário `ozzy`. |
+| `DATABASE_URL` | ausente | Sem ela, o Django usa SQLite. |
+
+O Render define sozinho `RENDER_EXTERNAL_URL` (por exemplo `https://ozzy-gestao.onrender.com`). Essa origem entra em `CSRF_TRUSTED_ORIGINS`, então o login e os formulários funcionam em HTTPS. Um domínio próprio precisa ser acrescentado em `DJANGO_ALLOWED_HOSTS` e em `DJANGO_CSRF_TRUSTED_ORIGINS`.
+
+### Login da demonstração
+
+| Usuário | Senha |
+| --- | --- |
+| `ozzy` | `acai-demo-2026` |
+
+O mesmo usuário entra no admin em `/admin/`. A senha é a da disciplina, documentada de propósito. Não serve para um sistema com dados reais.
+
+### Limites do plano gratuito
+
+- Depois de **15 minutos sem acesso**, o serviço **adormece**. O próximo acesso leva cerca de **um minuto** para acordar. O Render mostra uma página de espera nesse intervalo.
+- O disco é **efêmero**. Pedidos e estoque gravados na sessão somem quando o serviço adormece, reinicia ou recebe um deploy novo. Cada boot roda `migrate` e `seed_demo` de novo, então o usuário `ozzy` e os dados fictícios voltam. O que a proprietária lançou depois do último boot não volta.
+- O plano gratuito não tem disco persistente nem SSH. Há um teto de **750 horas** de instância por mês no workspace; o tempo adormecido não conta.
+- O Postgres gratuito da plataforma expira em 30 dias. Este MVP não o usa. Se no futuro existir um `DATABASE_URL` (`postgres://` ou `postgresql://`), o mesmo código passa a usá-lo, inclusive com `sslmode`, e o start continua rodando `migrate` no boot. O `preDeployCommand`, que migra antes de o processo novo receber tráfego, só existe em plano pago.
+
+O redirecionamento de HTTP para HTTPS fica na borda do Render. O Django não liga `SECURE_SSL_REDIRECT`, porque a checagem de saúde chega ao processo por HTTP.
 
 ## Regras de negócio
 
@@ -112,8 +171,8 @@ A usuária principal tem 56 anos e usa o sistema no balcão. Por isso:
 
 - Todas as telas do sistema exigem login. A senha fica só como hash.
 - Os formulários enviam o token de CSRF do Django. Sair também é um POST com esse token.
-- Não há segredo real no repositório. `DJANGO_SECRET_KEY` e `DATABASE_URL` ficam no ambiente.
-- Com `DJANGO_DEBUG=0`, os cookies de sessão e de CSRF são marcados como seguros (HTTPS).
+- Não há segredo real no repositório. `DJANGO_SECRET_KEY` e `DATABASE_URL` ficam no ambiente. No Render a chave é gerada pela plataforma.
+- Com `DJANGO_DEBUG=0`, os cookies de sessão e de CSRF são marcados como seguros (HTTPS). No Render o processo confia em `X-Forwarded-Proto`, porque o TLS termina na borda.
 
 ## Fora do escopo
 

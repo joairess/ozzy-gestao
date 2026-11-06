@@ -1,0 +1,21 @@
+# Blueprint do Ozzy Gestão no plano gratuito do Render.
+# Sem Postgres pago: o boot usa SQLite efêmero, migra e semeia a demonstração.
+services:
+  - type: web
+    name: ozzy-gestao
+    runtime: python
+    plan: free
+    branch: main
+    autoDeployTrigger: commit
+    healthCheckPath: /saude/
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
+    startCommand: bash scripts/start.sh
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
+        value: "0"
+      - key: DJANGO_ALLOWED_HOSTS
+        value: .onrender.com
+      - key: DEMO_PASSWORD
+        value: acai-demo-2026

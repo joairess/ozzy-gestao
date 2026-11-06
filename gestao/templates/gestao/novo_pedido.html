@@ -1,0 +1,120 @@
+{% extends "gestao/base.html" %}
+{% load gestao_extras %}
+
+{% block title %}Novo pedido — Ozzy Gestão{% endblock %}
+
+{% block content %}
+  <h1>Novo pedido</h1>
+  <p class="intro">Anote o pedido do WhatsApp ou lance o pedido do iFood. O total é calculado pelos preços do cardápio.</p>
+
+  {% if form.errors %}
+  <div class="alerta" role="alert">
+    <p>Confira os campos antes de registrar.</p>
+    {{ form.non_field_errors }}
+  </div>
+  {% endif %}
+
+  {% if not linhas %}
+  <p>Nenhum produto ativo. Cadastre o cardápio em <a href="{% url 'admin:index' %}">Cadastros</a>.</p>
+  {% else %}
+  <form method="post" id="form-pedido">
+    {% csrf_token %}
+
+    <fieldset>
+      <legend>De onde veio o pedido?</legend>
+      {{ form.canal.errors }}
+      <div class="opcoes duas">
+        {% for valor, rotulo in form.canal.field.choices %}
+        <label class="opcao">
+          <input type="radio" name="canal" value="{{ valor }}" {% if form.canal.value == valor %}checked{% endif %} {% if forloop.first %}required{% endif %}>
+          <span>{{ rotulo }}</span>
+        </label>
+        {% endfor %}
+      </div>
+    </fieldset>
+
+    <div class="campo">
+      <label for="{{ form.cliente_nome.id_for_label }}">Nome do cliente</label>
+      {{ form.cliente_nome }}
+      {{ form.cliente_nome.errors }}
+    </div>
+
+    <fieldset>
+      <legend>O que vai no pedido?</legend>
+      {% for linha in linhas %}
+      <div class="produto">
+        <div>
+          <label for="{{ linha.campo.id_for_label }}">{{ linha.produto.nome }}</label>
+          <p class="preco">{{ linha.produto.preco|reais }}</p>
+        </div>
+        <div class="quantidade">
+          <button type="button" class="passo" data-passo="-1" aria-label="Diminuir {{ linha.produto.nome }}">−</button>
+          {{ linha.campo }}
+          <button type="button" class="passo" data-passo="1" aria-label="Aumentar {{ linha.produto.nome }}">+</button>
+        </div>
+        {{ linha.campo.errors }}
+      </div>
+      {% endfor %}
+    </fieldset>
+
+    <fieldset>
+      <legend>Como vai pagar?</legend>
+      {{ form.forma_pagamento.errors }}
+      <div class="opcoes quatro">
+        {% for valor, rotulo in form.forma_pagamento.field.choices %}
+        <label class="opcao">
+          <input type="radio" name="forma_pagamento" value="{{ valor }}" {% if form.forma_pagamento.value == valor %}checked{% endif %} {% if forloop.first %}required{% endif %}>
+          <span>{{ rotulo }}</span>
+        </label>
+        {% endfor %}
+      </div>
+    </fieldset>
+
+    <div class="barra-total">
+      <p class="rotulo-total">Total <strong id="total-pedido" aria-live="polite">R$ 0,00</strong></p>
+      <button type="submit" class="btn-acao">Registrar pedido</button>
+    </div>
+  </form>
+  {% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  var totalEl = document.getElementById("total-pedido");
+  if (!totalEl) return;
+  var campos = document.querySelectorAll(".campo-quantidade");
+
+  function moeda(valor) {
+    return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  }
+
+  function atualizar() {
+    var total = 0;
+    campos.forEach(function (campo) {
+      var qtd = Number(campo.value || 0);
+      var preco = Number(campo.dataset.preco || 0);
+      if (qtd > 0 && preco > 0) total += qtd * preco;
+    });
+    totalEl.textContent = moeda(Math.round(total * 100) / 100);
+  }
+
+  document.querySelectorAll(".passo").forEach(function (botao) {
+    botao.addEventListener("click", function () {
+      var campo = botao.parentElement.querySelector(".campo-quantidade");
+      var atual = Number(campo.value || 0);
+      var proximo = atual + Number(botao.dataset.passo);
+      if (proximo < 0) proximo = 0;
+      if (proximo > 99) proximo = 99;
+      campo.value = String(proximo);
+      atualizar();
+    });
+  });
+
+  campos.forEach(function (campo) {
+    campo.addEventListener("input", atualizar);
+  });
+  atualizar();
+})();
+</script>
+{% endblock %}

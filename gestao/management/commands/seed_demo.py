@@ -92,51 +92,43 @@ class Command(BaseCommand):
         if Pedido.objects.exists():
             return
         exemplos = [
-            (
-                80,
-                {
-                    "canal": Pedido.Canal.WHATSAPP,
-                    "cliente_nome": "Cliente Ana",
-                    "forma_pagamento": Pedido.FormaPagamento.PIX,
-                    "itens": [
-                        (produtos["Açaí 500 ml"], 1),
-                        (produtos["Adicional de granola"], 1),
-                    ],
-                },
-            ),
-            (
-                50,
-                {
-                    "canal": Pedido.Canal.IFOOD,
-                    "cliente_nome": "Cliente Bruno",
-                    "forma_pagamento": Pedido.FormaPagamento.IFOOD_ONLINE,
-                    "itens": [(produtos["Açaí 300 ml"], 2)],
-                },
-            ),
-            (
-                35,
-                {
-                    "canal": Pedido.Canal.WHATSAPP,
-                    "cliente_nome": "Cliente Carla",
-                    "forma_pagamento": Pedido.FormaPagamento.DINHEIRO,
-                    "itens": [
-                        (produtos["Açaí 700 ml"], 1),
-                        (produtos["Adicional de leite em pó"], 1),
-                    ],
-                },
-            ),
-            (
-                15,
-                {
-                    "canal": Pedido.Canal.IFOOD,
-                    "cliente_nome": "Cliente Diego",
-                    "forma_pagamento": Pedido.FormaPagamento.CARTAO,
-                    "itens": [(produtos["Vitamina de cupuaçu"], 1)],
-                },
-            ),
+            {
+                "canal": Pedido.Canal.WHATSAPP,
+                "cliente_nome": "Cliente Ana",
+                "forma_pagamento": Pedido.FormaPagamento.PIX,
+                "itens": [
+                    (produtos["Açaí 500 ml"], 1),
+                    (produtos["Adicional de granola"], 1),
+                ],
+            },
+            {
+                "canal": Pedido.Canal.IFOOD,
+                "cliente_nome": "Cliente Bruno",
+                "forma_pagamento": Pedido.FormaPagamento.IFOOD_ONLINE,
+                "itens": [(produtos["Açaí 300 ml"], 2)],
+            },
+            {
+                "canal": Pedido.Canal.WHATSAPP,
+                "cliente_nome": "Cliente Carla",
+                "forma_pagamento": Pedido.FormaPagamento.DINHEIRO,
+                "itens": [
+                    (produtos["Açaí 700 ml"], 1),
+                    (produtos["Adicional de leite em pó"], 1),
+                ],
+            },
+            {
+                "canal": Pedido.Canal.IFOOD,
+                "cliente_nome": "Cliente Diego",
+                "forma_pagamento": Pedido.FormaPagamento.CARTAO,
+                "itens": [(produtos["Vitamina de cupuaçu"], 1)],
+            },
         ]
-        agora = timezone.now()
-        for minutos, dados in exemplos:
+        # Horários sempre dentro do dia local, mesmo se o seed rodar de madrugada.
+        agora = timezone.localtime()
+        inicio = agora.replace(hour=0, minute=0, second=0, microsecond=0)
+        decorrido = max(int((agora - inicio).total_seconds()), 120)
+        for indice, dados in enumerate(exemplos, start=1):
+            segundos = max(60, int(decorrido * indice / (len(exemplos) + 1)))
             pedido = registrar_pedido(**dados)
-            pedido.created_at = agora - timedelta(minutes=minutos)
+            pedido.created_at = inicio + timedelta(seconds=segundos)
             pedido.save(update_fields=["created_at"])

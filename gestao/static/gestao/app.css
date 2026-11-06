@@ -1,0 +1,475 @@
+/* Ozzy Gestão — letras grandes, contraste AA e botões fáceis de tocar. */
+
+:focus-visible {
+  outline: 3px solid #1C1226;
+  outline-offset: 2px;
+}
+
+body {
+  font-size: 1.125rem;
+  line-height: 1.5;
+  color: #1C1226;
+  background: #FFF8F4;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.3;
+  font-weight: 800;
+}
+
+h1 {
+  font-size: 2rem;
+  color: #3C145C;
+  margin-bottom: 0.35rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+  color: #3C145C;
+}
+
+h3 {
+  font-size: 1.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.skip-link {
+  position: absolute;
+  left: 0.75rem;
+  top: -4rem;
+  background: #FFFFFF;
+  color: #1C1226;
+  padding: 0.6rem 1rem;
+  z-index: 20;
+  font-weight: 700;
+  border-radius: 0.5rem;
+}
+
+.skip-link:focus {
+  top: 0.75rem;
+}
+
+.topo {
+  background: #3C145C;
+  color: #FFFFFF;
+  padding: 1rem 0 1.1rem;
+}
+
+.topo :focus-visible {
+  outline-color: #FFFFFF;
+}
+
+.topo-miolo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.marca {
+  color: #FFFFFF;
+  font-size: 1.75rem;
+  font-weight: 800;
+  text-decoration: none;
+  line-height: 1.2;
+}
+
+.loja {
+  margin: 0;
+  color: #FFFFFF;
+}
+
+.nav-principal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.nav-principal a,
+.nav-principal button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 0.7rem;
+  border: 2px solid transparent;
+  background: transparent;
+  color: #FFFFFF;
+  font-size: 1.125rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.nav-principal a[aria-current="page"] {
+  background: #FFFFFF;
+  color: #3C145C;
+}
+
+.nav-principal form {
+  margin: 0;
+}
+
+.conteudo {
+  padding-top: 1.5rem;
+  padding-bottom: 3rem;
+}
+
+.conteudo a {
+  color: #3C145C;
+  font-weight: 700;
+}
+
+.intro,
+.ajuda {
+  color: #1C1226;
+  font-size: 1.125rem;
+}
+
+.intro {
+  margin-bottom: 1.25rem;
+  max-width: 40rem;
+}
+
+.secao {
+  margin-top: 2rem;
+}
+
+.mensagens {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+}
+
+.mensagem,
+.alerta,
+.aviso {
+  border-radius: 0.75rem;
+  padding: 0.9rem 1rem;
+  font-weight: 700;
+}
+
+.alerta,
+.mensagem.error {
+  background: #FDECEC;
+  color: #6E1220;
+  border: 2px solid #6E1220;
+}
+
+.alerta {
+  margin: 0.75rem 0 1rem;
+}
+
+.aviso.ok,
+.mensagem.success {
+  background: #E7F6EC;
+  color: #14532D;
+  border: 2px solid #14532D;
+}
+
+.aviso {
+  margin-bottom: 1rem;
+}
+
+.selo {
+  display: inline-block;
+  background: #3C145C;
+  color: #FFFFFF;
+  font-weight: 700;
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  margin-bottom: 1rem;
+}
+
+.cartao {
+  background: #FFFFFF;
+  border: 2px solid #5C4A3E;
+  border-radius: 0.9rem;
+  padding: 1rem 1.1rem;
+  height: 100%;
+}
+
+.cartao.destaque {
+  background: #3C145C;
+  border-color: #3C145C;
+  color: #FFFFFF;
+}
+
+.cartao.destaque h3,
+.cartao.destaque .numero,
+.cartao.destaque .ajuda {
+  color: #FFFFFF;
+}
+
+.cartao.baixo {
+  background: #FDECEC;
+  border-color: #6E1220;
+}
+
+.cartao h2 {
+  font-size: 1.35rem;
+  margin: 0;
+}
+
+.numero {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #3C145C;
+  margin: 0.2rem 0;
+}
+
+.pedido {
+  margin-bottom: 0.75rem;
+}
+
+.pedido-topo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pedido ul,
+.lista-movimentos {
+  margin: 0.4rem 0 0;
+  padding-left: 1.2rem;
+}
+
+.hora {
+  color: #1C1226;
+  font-weight: 700;
+}
+
+.tarja {
+  display: inline-block;
+  margin: 0;
+  background: #6E1220;
+  color: #FFFFFF;
+  font-weight: 700;
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+}
+
+.tarja.boa {
+  background: #14532D;
+}
+
+label,
+legend {
+  font-weight: 700;
+  color: #1C1226;
+}
+
+fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0 0 1.5rem;
+}
+
+legend {
+  font-size: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.campo {
+  margin-bottom: 1.25rem;
+}
+
+.campo label,
+.movimento label {
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+.form-control {
+  min-height: 3.25rem;
+  font-size: 1.125rem;
+  color: #1C1226;
+  background: #FFFFFF;
+  border: 2px solid #5C4A3E;
+  border-radius: 0.7rem;
+}
+
+.form-control::placeholder {
+  color: #5C4A3E;
+  opacity: 1;
+}
+
+.errorlist {
+  color: #6E1220;
+  font-weight: 700;
+  list-style: none;
+  padding: 0;
+  margin: 0.35rem 0 0;
+}
+
+.opcoes {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.opcao {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 3.25rem;
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border: 2px solid #3C145C;
+  border-radius: 0.75rem;
+  background: #FFFFFF;
+  color: #1C1226;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.opcao:has(input:checked) {
+  background: #3C145C;
+  color: #FFFFFF;
+}
+
+.opcao input {
+  width: 1.35rem;
+  height: 1.35rem;
+  accent-color: #3C145C;
+  flex: 0 0 auto;
+}
+
+.opcao:has(input:checked) input {
+  accent-color: #FFFFFF;
+}
+
+.produto {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  border: 2px solid #5C4A3E;
+  border-radius: 0.9rem;
+  background: #FFFFFF;
+}
+
+.preco {
+  margin: 0;
+  color: #3C145C;
+  font-weight: 800;
+}
+
+.quantidade {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.quantidade .form-control {
+  width: 5.5rem;
+  text-align: center;
+  padding-left: 0.4rem;
+  padding-right: 0.4rem;
+}
+
+.passo {
+  min-width: 3.25rem;
+  min-height: 3.25rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+  border: 2px solid #3C145C;
+  border-radius: 0.75rem;
+  background: #FFFFFF;
+  color: #3C145C;
+}
+
+.barra-total {
+  position: sticky;
+  bottom: 0.5rem;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  background: #FFFFFF;
+  border: 2px solid #3C145C;
+  border-radius: 0.9rem;
+  padding: 1rem;
+  margin-top: 0.5rem;
+}
+
+.rotulo-total {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.rotulo-total strong {
+  display: block;
+  font-size: 2rem;
+  color: #3C145C;
+}
+
+.btn-acao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3.25rem;
+  padding: 0.75rem 1.25rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  border-radius: 0.75rem;
+  border: 2px solid #3C145C;
+  background: #3C145C;
+  color: #FFFFFF;
+}
+
+.btn-acao.secundario {
+  background: #FFFFFF;
+  color: #3C145C;
+}
+
+.formulario-estreito {
+  max-width: 32rem;
+}
+
+.movimento .form-control {
+  max-width: 12rem;
+}
+
+.acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.acoes .btn-acao {
+  flex: 1 1 8rem;
+}
+
+@media (min-width: 768px) {
+  .opcoes.duas,
+  .opcoes.quatro {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .produto {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+
+  .btn-acao {
+    width: auto;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .formulario-estreito .btn-acao,
+  #form-fechamento .btn-acao,
+  .barra-total .btn-acao {
+    width: 100%;
+  }
+}

@@ -1,0 +1,177 @@
+{% extends "gestao/base.html" %}
+{% load gestao_extras l10n %}
+
+{% block title %}Fechamento do dia — Ozzy Gestão{% endblock %}
+
+{% block content %}
+  <h1>Fechamento do dia</h1>
+  <p class="intro">{{ data_extenso }}. Confira os pedidos e o valor que entrou no caixa.</p>
+
+  {% if fechamento %}
+  <p class="selo">Dia fechado às {{ fechamento.fechado_em|time:"H:i" }}</p>
+  {% endif %}
+
+  <section class="secao" aria-labelledby="titulo-resumo">
+    <h2 id="titulo-resumo" class="visually-hidden">Resumo</h2>
+    <div class="row g-3">
+      <div class="col-12 col-md-4">
+        <article class="cartao destaque">
+          <h3>Total do dia</h3>
+          <p class="numero">{{ painel.total|reais }}</p>
+        </article>
+      </div>
+      <div class="col-12 col-md-4">
+        <article class="cartao">
+          <h3>Pedidos</h3>
+          <p class="numero">{{ painel.quantidade }}</p>
+        </article>
+      </div>
+      <div class="col-12 col-md-4">
+        <article class="cartao">
+          <h3>Ticket médio</h3>
+          <p class="numero">{{ painel.ticket_medio|reais }}</p>
+          <p class="ajuda">Valor médio de cada pedido.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="secao" aria-labelledby="titulo-canais">
+    <h2 id="titulo-canais">Por canal</h2>
+    <div class="row g-3">
+      {% for grupo in painel.canais %}
+      <div class="col-12 col-md-6">
+        <article class="cartao">
+          <h3>{{ grupo.rotulo }}</h3>
+          <p class="numero">{{ grupo.total|reais }}</p>
+          {% if painel.mostrar_contagem %}
+          <p class="ajuda">{% if grupo.quantidade == 1 %}1 pedido{% else %}{{ grupo.quantidade }} pedidos{% endif %}</p>
+          {% endif %}
+        </article>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="secao" aria-labelledby="titulo-pagamentos">
+    <h2 id="titulo-pagamentos">Por forma de pagamento</h2>
+    <div class="row g-3">
+      {% for grupo in painel.pagamentos %}
+      <div class="col-12 col-md-6 col-lg-3">
+        <article class="cartao">
+          <h3>{{ grupo.rotulo }}</h3>
+          <p class="numero">{{ grupo.total|reais }}</p>
+        </article>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="secao" aria-labelledby="titulo-caixa">
+    <h2 id="titulo-caixa">Caixa</h2>
+    {% if fechamento %}
+    <div class="row g-3">
+      <div class="col-12 col-md-6">
+        <article class="cartao">
+          <h3>Valor conferido em caixa</h3>
+          <p class="numero">{{ fechamento.valor_conferido|reais }}</p>
+        </article>
+      </div>
+      <div class="col-12 col-md-6">
+        <article class="cartao {% if fechamento.divergencia < 0 %}baixo{% endif %}">
+          <h3>Divergência</h3>
+          <p class="numero">{{ fechamento.divergencia|reais }}</p>
+          <p class="ajuda">
+            {% if fechamento.divergencia < 0 %}
+            Faltou dinheiro em relação aos pedidos.
+            {% elif fechamento.divergencia > 0 %}
+            Sobrou dinheiro em relação aos pedidos.
+            {% else %}
+            O valor contado fecha com os pedidos.
+            {% endif %}
+          </p>
+        </article>
+      </div>
+    </div>
+    {% else %}
+    <form method="post" id="form-fechamento" data-total="{{ resumo.total|unlocalize }}">
+      {% csrf_token %}
+      <div class="campo">
+        <label for="valor_conferido">Valor conferido em caixa</label>
+        <p class="ajuda" id="ajuda-caixa">Some dinheiro, Pix e cartão que entraram hoje. A divergência é esse valor menos o total dos pedidos. Se der negativo, faltou dinheiro.</p>
+        <input id="valor_conferido" name="valor_conferido" class="form-control" inputmode="decimal" autocomplete="off" required aria-describedby="ajuda-caixa divergencia-previa" placeholder="0,00">
+      </div>
+      <p id="divergencia-previa" class="ajuda" aria-live="polite"></p>
+      <button type="submit" class="btn-acao">Fechar o dia</button>
+    </form>
+    {% endif %}
+  </section>
+
+  {% if pedidos_depois %}
+  <p class="alerta" role="status">Entrou pedido depois do fechamento. Os números do resumo são os da hora em que o dia foi fechado.</p>
+  {% endif %}
+
+  <section class="secao" aria-labelledby="titulo-pedidos">
+    <h2 id="titulo-pedidos">Pedidos de hoje</h2>
+    {% if resumo.pedidos %}
+      {% for pedido in resumo.pedidos %}
+      <article class="cartao pedido">
+        <div class="pedido-topo">
+          <h3>{{ pedido.cliente_nome }}</h3>
+          <p class="numero">{{ pedido.total|reais }}</p>
+        </div>
+        <p>{{ pedido.created_at|time:"H:i" }} · {{ pedido.get_canal_display }} · {{ pedido.get_forma_pagamento_display }}</p>
+        <ul>
+          {% for item in pedido.itens.all %}
+          <li>{{ item.produto.nome }} × {{ item.quantidade }}</li>
+          {% endfor %}
+        </ul>
+      </article>
+      {% endfor %}
+    {% else %}
+    <p>Nenhum pedido registrado hoje.</p>
+    {% endif %}
+  </section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  var form = document.getElementById("form-fechamento");
+  var campo = document.getElementById("valor_conferido");
+  var saida = document.getElementById("divergencia-previa");
+  if (!form || !campo || !saida) return;
+  var total = Number(form.dataset.total);
+
+  function ler(texto) {
+    var bruto = texto.trim();
+    if (!bruto) return null;
+    if (bruto.indexOf(",") !== -1 && bruto.indexOf(".") !== -1) {
+      bruto = bruto.replace(/\./g, "").replace(",", ".");
+    } else {
+      bruto = bruto.replace(",", ".");
+    }
+    var valor = Number(bruto);
+    return isFinite(valor) ? valor : null;
+  }
+
+  function moeda(valor) {
+    return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  }
+
+  campo.addEventListener("input", function () {
+    var valor = ler(campo.value);
+    if (valor === null || valor < 0) {
+      saida.textContent = "";
+      return;
+    }
+    var diferenca = Math.round((valor - total) * 100) / 100;
+    var frase = "Diferença prevista: " + moeda(diferenca) + ".";
+    if (diferenca < 0) frase += " Faltou dinheiro.";
+    else if (diferenca > 0) frase += " Sobrou dinheiro.";
+    else frase += " O caixa fecha com os pedidos.";
+    saida.textContent = frase;
+  });
+})();
+</script>
+{% endblock %}

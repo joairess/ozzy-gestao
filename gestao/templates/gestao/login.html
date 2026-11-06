@@ -1,0 +1,25 @@
+{% extends "gestao/base.html" %}
+
+{% block title %}Entrar — Ozzy Gestão{% endblock %}
+
+{% block content %}
+  <h1>Entrar</h1>
+  <p class="intro">Use o usuário da loja para registrar pedidos, fechar o dia e ver o estoque.</p>
+  <form method="post" class="formulario-estreito" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+    <div class="alerta" role="alert">{{ form.non_field_errors }}</div>
+    {% endif %}
+    <div class="campo">
+      <label for="{{ form.username.id_for_label }}">Usuário</label>
+      {{ form.username }}
+      {{ form.username.errors }}
+    </div>
+    <div class="campo">
+      <label for="{{ form.password.id_for_label }}">Senha</label>
+      {{ form.password }}
+      {{ form.password.errors }}
+    </div>
+    <button type="submit" class="btn-acao">Entrar</button>
+  </form>
+{% endblock %}

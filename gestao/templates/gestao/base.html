@@ -1,0 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Ozzy Gestão{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'gestao/vendor/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'gestao/app.css' %}">
+</head>
+<body>
+  <a class="skip-link" href="#conteudo">Ir para o conteúdo</a>
+  <header class="topo">
+    <div class="container topo-miolo">
+      <div class="marca-bloco">
+        <a class="marca" href="{% url 'inicio' %}">Ozzy Gestão</a>
+        <p class="loja">Delícias da Ozzy</p>
+      </div>
+      {% if user.is_authenticated %}
+      <nav class="nav-principal" aria-label="Principal">
+        <a href="{% url 'novo_pedido' %}" {% if request.resolver_match and request.resolver_match.url_name == 'novo_pedido' %}aria-current="page"{% endif %}>Novo pedido</a>
+        <a href="{% url 'fechamento' %}" {% if request.resolver_match and request.resolver_match.url_name == 'fechamento' %}aria-current="page"{% endif %}>Fechamento do dia</a>
+        <a href="{% url 'estoque' %}" {% if request.resolver_match and request.resolver_match.url_name == 'estoque' %}aria-current="page"{% endif %}>Estoque</a>
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit">Sair</button>
+        </form>
+      </nav>
+      {% endif %}
+    </div>
+  </header>
+  <main id="conteudo" class="container conteudo">
+    {% if messages %}
+    <ul class="mensagens">
+      {% for message in messages %}
+      <li class="mensagem {{ message.tags }}" role="{% if 'error' in message.tags %}alert{% else %}status{% endif %}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

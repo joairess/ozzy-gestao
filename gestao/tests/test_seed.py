@@ -3,6 +3,7 @@ from decimal import Decimal
 import pytest
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
+from django.utils import timezone
 
 from gestao.models import Insumo, Pedido, Produto
 
@@ -33,3 +34,6 @@ def test_seed_e_idempotente_e_traz_alerta_de_estoque():
 
     nomes = set(Pedido.objects.values_list("cliente_nome", flat=True))
     assert nomes == {"Cliente Ana", "Cliente Bruno", "Cliente Carla", "Cliente Diego"}
+    hoje = timezone.localdate()
+    for pedido_demo in Pedido.objects.all():
+        assert timezone.localtime(pedido_demo.created_at).date() == hoje

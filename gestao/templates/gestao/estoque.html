@@ -1,0 +1,66 @@
+{% extends "gestao/base.html" %}
+{% load gestao_extras %}
+
+{% block title %}Estoque — Ozzy Gestão{% endblock %}
+
+{% block content %}
+  <h1>Estoque</h1>
+  <p class="intro">Veja o que está acabando e registre a compra (entrada) ou o uso (saída).</p>
+
+  {% if alertas == 0 %}
+  <p class="aviso ok" role="status">Nenhum insumo está abaixo do mínimo.</p>
+  {% elif alertas == 1 %}
+  <p class="aviso alerta" role="status">1 insumo está acabando.</p>
+  {% else %}
+  <p class="aviso alerta" role="status">{{ alertas }} insumos estão acabando.</p>
+  {% endif %}
+
+  <div class="row g-3">
+    {% for insumo in insumos %}
+    <div class="col-12 col-lg-6">
+      <article class="cartao {% if insumo.abaixo_do_minimo %}baixo{% endif %}">
+        <div class="pedido-topo">
+          <h2>{{ insumo.nome }}</h2>
+          {% if insumo.abaixo_do_minimo %}
+          <p class="tarja">Acabando</p>
+          {% else %}
+          <p class="tarja boa">Quantidade boa</p>
+          {% endif %}
+        </div>
+        <p>Agora: <strong>{{ insumo.quantidade_atual|qtd_br }} {{ insumo.unidade }}</strong></p>
+        <p>Mínimo: {{ insumo.estoque_minimo|qtd_br }} {{ insumo.unidade }}</p>
+        <form method="post" class="movimento">
+          {% csrf_token %}
+          <input type="hidden" name="insumo_id" value="{{ insumo.id }}">
+          <label for="qtd-{{ insumo.id }}">Quantidade ({{ insumo.unidade }})</label>
+          <input id="qtd-{{ insumo.id }}" name="quantidade" class="form-control" inputmode="decimal" required placeholder="0">
+          <div class="acoes">
+            <button type="submit" name="tipo" value="entrada" class="btn-acao secundario">Entrada</button>
+            <button type="submit" name="tipo" value="saida" class="btn-acao">Saída</button>
+          </div>
+        </form>
+      </article>
+    </div>
+    {% empty %}
+    <p>Nenhum insumo cadastrado.</p>
+    {% endfor %}
+  </div>
+
+  <section class="secao" aria-labelledby="titulo-movimentos">
+    <h2 id="titulo-movimentos">Últimas movimentações</h2>
+    {% if movimentos %}
+    <ul class="lista-movimentos">
+      {% for movimento in movimentos %}
+      <li>
+        <strong>{{ movimento.get_tipo_display }}</strong>
+        de {{ movimento.quantidade|qtd_br }} {{ movimento.insumo.unidade }}
+        — {{ movimento.insumo.nome }}
+        <span class="hora">{{ movimento.created_at|time:"H:i" }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p>Ainda não há movimentações.</p>
+    {% endif %}
+  </section>
+{% endblock %}

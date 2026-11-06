@@ -107,6 +107,7 @@ A usuária principal tem 56 anos e usa o sistema no balcão. Por isso:
 - contraste de texto no nível AA do WCAG 2.1 (as combinações de cor estão cobertas por teste);
 - rótulos visíveis, foco visível e um link “Ir para o conteúdo”;
 - o estado de estoque baixo não depende só da cor: o texto diz **Acabando**.
+- Depois da validação no balcão (Estoque e Pedidos), o selo **Acabando** ficou maior e uma frase acima da lista explica que ele vale quando a quantidade é menor ou igual ao mínimo.
 
 ## Segurança
 
